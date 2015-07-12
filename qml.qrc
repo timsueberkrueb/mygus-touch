@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icon.png</file>
+        <file>main.py</file>
+        <file>vp_api.py</file>
+        <file>mygus_api.py</file>
+        <file>vp_students.qml</file>
+        <file>vp_teachers.qml</file>
+        <file>overview_students.qml</file>
+        <file>OverviewListItem.qml</file>
+        <file>NoChangesOverviewListItem.qml</file>
+        <file>mensa.qml</file>
+        <file>news.qml</file>
+        <file>android_webview.qml</file>
+        <file>Main.qml</file>
+        <file>python_core.qml</file>
+        <file>LoadingIndicator.qml</file>
+        <file>authentication.py</file>
+    </qresource>
+</RCC>

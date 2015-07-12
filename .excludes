@@ -1,0 +1,11 @@
+Makefile
+*.tmp
+.bzr
+.git
+po
+android
+android-build
+release
+resources
+*.bin
+android_webview.qml

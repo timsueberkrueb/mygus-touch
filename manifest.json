@@ -1,0 +1,15 @@
+{
+    "name": "mygus-ubuntu-touch.timsueberkrueb",
+    "description": "description of mygus-ubuntu-touch",
+    "architecture": "armhf",
+    "title": "mygus-ubuntu-touch",
+    "hooks": {
+        "mygus": {
+            "apparmor": "mygus.apparmor",
+            "desktop": "mygus.desktop"
+        }
+    },
+    "version": "0.2.3.2",
+    "maintainer": "Tim Süberkrüb <tim.sueberkrueb@web.de>",
+    "framework": "ubuntu-sdk-14.10"
+}
