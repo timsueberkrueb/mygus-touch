@@ -1,6 +1,4 @@
-# MyGUS Touch
-
-<img src="https://raw.githubusercontent.com/tim-sueberkrueb/mygus-touch/master/icon.png" width="64"> 
+<h1><img src="https://raw.githubusercontent.com/tim-sueberkrueb/mygus-touch/master/icon.png" width="64"> MyGUS Touch</h1>
 
 MyGUS is an application for students and teachers of the Gymnasium Unterrieden Sindelfingen (http://www.gymnasium-unterrieden.de/). It makes use of the API provided by Dominik Stiller (https://github.com/domistiller/).
 
