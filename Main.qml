@@ -214,23 +214,16 @@ ApplicationWindow {
         }
     }
 
-
-    /*initialPage: Page {
-        title: "Essen bestellen"
-        WebView {
-            anchors.fill: parent
-            url: "http://gus.sams-on.de"
+    function fixDensity() {
+        var bq45 =
+                (Screen.width == 540) &&
+                (Screen.height == 960) &&
+                (Screen.pixelDensity.toFixed(2) == 3.94) &&
+                (Screen.logicalPixelDensity.toFixed(2) == 3.94)
+        if (bq45) {
+            Units.multiplier = 2;
         }
-
     }
-
-    Label {
-        x: 165
-        y: 15
-        font.pixelSize: 24
-        color: 'white'
-        text: main_window.height.toString() + '/' + main_window.width.toString()
-    }*/
 
     initialPage: Page {
         id: main_page
@@ -407,24 +400,26 @@ ApplicationWindow {
                 color: login_color[login_state]
             }
 
-            Controls.TextField {
+            TextField {
                 id: input_username
+                width: parent.width
                 placeholderText: "username"
             }
 
-            Controls.TextField {
+            TextField {
                 id: input_password
+                width: parent.width
                 placeholderText: "password"
                 echoMode: TextInput.Password
 
             }
 
-            Controls.ComboBox {
+            MenuField {
                 id: combo_login_mode
                 model: ['Ich bin ein Schüler', 'Ich bin ein Lehrer']
-                currentIndex: login_mode
-                onCurrentIndexChanged: {
-                    login_mode = this.currentIndex;
+                selectedIndex: login_mode
+                onSelectedIndexChanged: {
+                    login_mode = this.selectedIndex;
                 }
             }
 
@@ -676,6 +671,7 @@ ApplicationWindow {
 
     }
     Component.onCompleted: {
+        fixDensity();
         console.log("Loading python core ...")
         python_core_loader.source = Qt.resolvedUrl("python_core.qml");
     }

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=MyGUS
+Exec=qmlscene $@ Main.qml
+Icon=icon.png
+Terminal=false
+Type=Application
+X-Ubuntu-Touch=true
+

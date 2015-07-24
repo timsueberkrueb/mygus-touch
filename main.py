@@ -12,12 +12,15 @@ import pickle
 import urllib.error
 import datetime
 import os
+import platform
 
 
 plans = {}
 app_id = 'mygus'
-app_platform = 'android' # for android
-#app_platform = 'ubuntu-touch' # for ubuntu touch
+if platform.dist()[0] == "Ubuntu":
+    app_platform = 'ubuntu-touch'
+else:
+    app_platform = 'android'
 app_path = ''
 if app_platform == 'ubuntu-touch':
     APP_ID = os.environ['APP_ID']

@@ -1,6 +1,6 @@
 {
     "name": "mygus-ubuntu-touch.timsueberkrueb",
-    "description": "description of mygus-ubuntu-touch",
+    "description": "App for Gymnasium Unterrieden Sindelfingen",
     "architecture": "armhf",
     "title": "mygus-ubuntu-touch",
     "hooks": {
@@ -9,7 +9,7 @@
             "desktop": "mygus.desktop"
         }
     },
-    "version": "0.2.3.2",
+    "version": "0.2.5",
     "maintainer": "Tim Süberkrüb <tim.sueberkrueb@web.de>",
-    "framework": "ubuntu-sdk-14.10"
+    "framework": "ubuntu-sdk-15.04"
 }
