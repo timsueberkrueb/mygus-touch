@@ -19,7 +19,7 @@ try:
 except ImportError:
     import urllib2 as urllib
 import json
-import authentication
+from . import authentication
 
 server_ip = 'dominik-stiller.de'
 server_port = '12566'

@@ -9,11 +9,11 @@ Page {
     title: if (webview_news.loadProgress < 100) { "Lädt " + webview_news.loadProgress.toString() + '% ...' } else { "News" }
     Component.onCompleted: {
         if (Qt.platform.os === "android") {
-            webview = Qt.createComponent("android_webview.qml");
+            webview = Qt.createComponent("AndroidWebview.qml");
         }
 
         else {
-            webview = Qt.createComponent("ubuntu_webview.qml");
+            webview = Qt.createComponent("UbuntuWebview.qml");
         }
 
         webview_news = webview.createObject(page_news);

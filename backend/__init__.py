@@ -6,8 +6,8 @@ __version__ = '0.2.5'
 
 
 import pyotherside
-import vp_api
-import mygus_api
+from . import vp_api
+from . import mygus_api
 import pickle
 import urllib.error
 import datetime
@@ -17,15 +17,14 @@ import platform
 
 plans = {}
 app_id = 'mygus'
-if platform.dist()[0] == "Ubuntu":
-    app_platform = 'ubuntu-touch'
-else:
-    app_platform = 'android'
-app_path = ''
-if app_platform == 'ubuntu-touch':
+try:
     APP_ID = os.environ['APP_ID']
     APP_PKGNAME = APP_ID.split('_')[0]
     app_path = os.environ['XDG_DATA_HOME'] + '/' + APP_PKGNAME + '/'
+    app_platform = 'ubuntu-touch'
+except KeyError:
+    app_path = './'
+    app_platform = 'android'
 app_version = __version__
 user_name = 'unknown'
 read_welcome_messages = []

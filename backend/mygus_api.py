@@ -21,7 +21,7 @@ except ImportError:
 import json
 import hashlib
 import datetime
-import authentication
+from . import authentication
 
 server_address_student_login = authentication.default_login_server + '/login-schueler.php'
 server_address_teacher_login = authentication.default_login_server + '/teacher/login-lehrer.php'
