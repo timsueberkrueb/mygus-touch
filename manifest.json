@@ -9,7 +9,7 @@
             "desktop": "mygus.desktop"
         }
     },
-    "version": "0.2.5",
+    "version": "0.2.6",
     "maintainer": "Tim Süberkrüb <tim.sueberkrueb@web.de>",
     "framework": "ubuntu-sdk-15.04"
 }

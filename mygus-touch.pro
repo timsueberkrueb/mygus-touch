@@ -1,11 +1,10 @@
 TEMPLATE = app
 
-QT += qml quick widgets svg xml
-QT += androidextras
+QT += qml quick svg xml
+#QT += androidextras webview
 
 
-QTPLUGIN += qsvg
-
+QTPLUGIN += qsvg@
 SOURCES += main.cpp
 
 RESOURCES += qml.qrc

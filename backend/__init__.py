@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
-
 __author__ = 'Tim Süberkrüb'
-__version__ = '0.2.5'
+__version__ = '0.2.6'
 
 
 import pyotherside
@@ -28,6 +27,8 @@ except KeyError:
 app_version = __version__
 user_name = 'unknown'
 read_welcome_messages = []
+user_full_name = ''
+is_teacher = False
 
 
 def load():
@@ -35,6 +36,7 @@ def load():
     global user_name
     global app_path
     global read_welcome_messages
+    global user_full_name
     try:
         with open(app_path + 'plans.bin', 'rb') as file:
             plans = pickle.load(file)
@@ -42,6 +44,7 @@ def load():
         pass
     username = ""
     password = ""
+    user_full_name = ""
     login_mode = 0
     try:
         with open(app_path + 'login.bin', 'rb') as file:
@@ -57,11 +60,18 @@ def load():
     except FileNotFoundError:
         pass
 
+    try:
+        with open(app_path + 'user_full_name.bin', 'rb') as file:
+            user_full_name = pickle.load(file)
+    except FileNotFoundError:
+        pass
+
     result = dict()
     result["username"] = username
     user_name = username
     result["password"] = password
     result["login_mode"] = login_mode
+    result["full_name"] = user_full_name
     result['dates'] = sorted(list(plans.keys()))
 
     # Check servers
@@ -89,12 +99,16 @@ def refresh():
         return result
 
 
-def login(username, password, login_mode):
+def login(username, password, login_mode, name=None):
     global user_name
     global app_id
     global app_version
     global app_platform
     global app_path
+    global user_full_name
+    global is_teacher
+    is_teacher =  login_mode == 1
+    user_full_name = name
     try:
         user_name = username
         result = mygus_api.authenticate(username, password, login_mode, user_name, app_id, app_version, app_platform)
@@ -102,6 +116,8 @@ def login(username, password, login_mode):
             pickle.dump(username, file)
             pickle.dump(password, file)
             pickle.dump(login_mode, file)
+        with open(app_path + 'user_full_name.bin', 'wb') as file:
+            pickle.dump(user_full_name, file)
         return result
     except urllib.error.URLError:
         return 'NETWORK_ERROR'
@@ -130,28 +146,19 @@ Bemerkungen: {}
                ''.join(c + ', ' for c in current_plan.absent_courses)[:-2] if current_plan.absent_courses else ' -',
                ''.join(c + ', ' for c in current_plan.absent_teachers)[:-2] if current_plan.absent_teachers else ' -',
                ''.join(c + ', ' for c in current_plan.missing_rooms)[:-2] if current_plan.missing_rooms else ' -',
-               current_plan.notes if current_plan.notes else ' -')
+               current_plan.student_notes if current_plan.student_notes else ' -')
     result["information"] = info
     result['version'] = current_plan.version
     result['absent_classes'] = ''.join(c + ',\n' for c in current_plan.absent_classes)[:-2] if current_plan.absent_classes else ' -'
     result['absent_courses'] = ''.join(c + ',\n' for c in current_plan.absent_courses)[:-2] if current_plan.absent_courses else ' -'
     result['absent_teachers'] = ''.join(c + ',\n' for c in current_plan.absent_teachers)[:-2] if current_plan.absent_teachers else ' -'
     result['missing_rooms'] = ''.join(c + ',\n' for c in current_plan.missing_rooms)[:-2] if current_plan.missing_rooms else ' -'
-    result['notes'] = current_plan.notes if current_plan.notes else ' -'
-    result['relevant_entries'] = current_plan.get_relevant_entries_by_form(user_name)
+    result['student_notes'] = current_plan.student_notes if current_plan.student_notes else ' -'
+    result['teacher_notes'] = current_plan.teacher_notes if current_plan.teacher_notes else ' -'
+    result['relevant_entries'] = current_plan.get_relevant_entries_for_teacher(user_full_name) if is_teacher else current_plan.get_relevant_entries_by_form(user_name)
     split_date = date.split('.')
     d = datetime.date(int(split_date[2]), int(split_date[1]), int(split_date[0]))
     result["weekday"] = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'][d.weekday()]
-    """
-        self.version = meta['version']
-        self.last_updated = meta['lastUpdated']
-        self.notes = meta['notes']
-        self.absent_classes = meta['absentClasses']
-        self.absent_courses = meta['absentCourses']
-        self.absent_teachers = meta['absentTeachers']
-        self.missing_rooms = meta['missingRooms']
-
-    """
     return result
 
 
@@ -173,6 +180,7 @@ def save_theme(primary_color, accent_color, background_color):
         pickle.dump(primary_color, file)
         pickle.dump(accent_color, file)
         pickle.dump(background_color, file)
+
 
 def exit():
     print("Exiting ...")

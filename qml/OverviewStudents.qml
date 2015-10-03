@@ -7,57 +7,25 @@ import Material.Extras 0.1
 
 Item {
     implicitHeight: 0;
-    id: item_overview
+    id: itemOverview
 
-    property Component overview_list_item: Qt.createComponent("OverviewListItem.qml");
-    property Component no_changes_list_item: Qt.createComponent("NoChangesOverviewListItem.qml");
+    property alias dialogDetails: dialogDetails
 
-
-    function clear_entries() {
-        for(var i = column.children.length; i > 1 ; i--) {
-          column.children[i-1].destroy()
-        }
-    }
-
-    function current_date_changed(result) {
-        item_overview.implicitHeight = list_item_header.height + view.anchors.margins * 2;
-        clear_entries();
+    function updateCurrentDate(result) {
         var entries = result['relevant_entries'];
-        if (entries.length === 0) {
-            var new_item = no_changes_list_item.createObject(column);
-        }
-        else {
-            for (var i=0; i<entries.length; i++){
-                var entry = entries[i];
-                var new_item = overview_list_item.createObject(column);
-                new_item.entry = entry
-                new_item.form = entry["className"];
-                new_item.lesson = entry["lesson"];
-                new_item.subject = entry["originalSubject"];
-                if(entry["substitutionSubject"] !== '-') {
-                    new_item.state = entry["substitutionSubject"];
-                }
-                else {
-                    new_item.state = entry["substitutionTeacher"];
-                }
-                new_item.notes = entry["comments"]
-                new_item.on_clicked = show_details
-                item_overview.implicitHeight += new_item.height;
-            }
-
-        }
+        listView.model = entries;
     }
 
-    function show_details(result) {
-        label_class.text = result["className"];
-        label_lesson.text = result["lesson"];
-        label_teacher.text = result["originalTeacher"];
-        label_subject.text = result["originalSubject"];
-        label_substituion_teacher.text = result["substitutionTeacher"];
-        label_substitution_subject.text = result["substitutionSubject"];
-        label_room.text = result["substitutionRoom"];
-        label_notes.text = result["comments"];
-        dialog_details.show();
+    function showDetails(result) {
+        labelClass.text = result["className"];
+        labelLesson.text = result["lesson"];
+        labelTeacher.text = result["originalTeacher"];
+        labelSubject.text = result["originalSubject"];
+        labelSubstitutionTeacher.text = result["substitutionTeacher"];
+        labelSubstitutionSubject.text = result["substitutionSubject"];
+        labelRoom.text = result["substitutionRoom"];
+        labelNotes.text = result["comments"];
+        dialogDetails.show();
     }
 
 
@@ -68,25 +36,54 @@ Item {
             margins: Units.dp(32)
         }
 
-        //elevation: 1
+        ListItem.Standard {
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            id: listItemHeader
+            text: "Änderungen für meine Klasse"
+        }
 
-        Column {
-            id: column
-            anchors.fill: parent
+        ListView {
+            id: listView
 
-            ListItem.Standard {
-                id: list_item_header
-                text: "Änderungen für meine Klasse"
+            clip: true
+
+            model: []
+
+            anchors.top: listItemHeader.bottom
+            anchors.topMargin: Units.dp(16)
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+
+            delegate: Component {
+                OverviewListItem {
+                    z: 0
+                    property var modelData: listView.model[index]
+                    entry: modelData
+                    form: modelData.className
+                    lesson: modelData.lesson
+                    subject: modelData.originalSubject
+                    state: modelData["substitutionSubject"] !== '-' ? modelData["substitutionSubject"] : modelData["substitutionTeacher"]
+                    notes: modelData.comments
+                    on_clicked: showDetails
+                }
+            }
+
+            NoChangesOverviewListItem {
+                visible: listView.model.length === 0
             }
 
         }
+
     }
 
     Dialog {
-        id: dialog_details
+        id: dialogDetails
         title: "Details"
         hasActions: false
-        width: item_overview.width - Units.dp(30)
+        width: itemOverview.width - Units.dp(30)
 
         GridLayout {
             columns: 2
@@ -100,7 +97,7 @@ Item {
             }
 
             Label {
-                id: label_class
+                id: labelClass
                 font.pixelSize: Units.dp(16);
             }
 
@@ -110,7 +107,7 @@ Item {
             }
 
             Label {
-                id: label_lesson
+                id: labelLesson
                 font.pixelSize: Units.dp(16);
             }
 
@@ -120,7 +117,7 @@ Item {
             }
 
             Label {
-                id: label_teacher
+                id: labelTeacher
                 font.pixelSize: Units.dp(16);
             }
 
@@ -131,7 +128,7 @@ Item {
 
 
             Label {
-                id: label_subject
+                id: labelSubject
                 font.pixelSize: Units.dp(16);
             }
 
@@ -141,7 +138,7 @@ Item {
             }
 
             Label {
-                id: label_substituion_teacher
+                id: labelSubstitutionTeacher
                 font.pixelSize: Units.dp(16);
             }
 
@@ -151,7 +148,7 @@ Item {
             }
 
             Label {
-                id: label_substitution_subject
+                id: labelSubstitutionSubject
                 font.pixelSize: Units.dp(16);
             }
 
@@ -162,7 +159,7 @@ Item {
             }
 
             Label {
-                id: label_room
+                id: labelRoom
                 font.pixelSize: Units.dp(16);
             }
 
@@ -172,7 +169,7 @@ Item {
             }
 
             Label {
-                id: label_notes
+                id: labelNotes
                 font.pixelSize: Units.dp(16);
             }
 
@@ -180,7 +177,7 @@ Item {
 
         Button {
             text: "Okay"
-            onClicked: dialog_details.close()
+            onClicked: dialogDetails.close()
         }
 
     }

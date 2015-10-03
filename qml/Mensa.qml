@@ -3,10 +3,10 @@ import Material 0.1
 
 Page {
     property Component webview
-    property Item webview_mensa
+    property Item webviewMensa
 
     id: page_mensa
-    title: if (webview_mensa.loadProgress < 100) { "Lädt " + webview_mensa.loadProgress.toString() + '% ...' } else { "GUS Mensa System" }
+    title: if (webviewMensa.loadProgress < 100) { "Lädt " + webviewMensa.loadProgress.toString() + '% ...' } else { "GUS Mensa System" }
     Component.onCompleted: {
         if (Qt.platform.os === "android") {
             webview = Qt.createComponent("AndroidWebview.qml");
@@ -16,7 +16,7 @@ Page {
             webview = Qt.createComponent("UbuntuWebview.qml");
         }
 
-        webview_mensa = webview.createObject(page_mensa);
-        webview_mensa.url = "https://gus.sams-on.de";
+        webviewMensa = webview.createObject(page_mensa);
+        webviewMensa.url = "https://gus.sams-on.de";
     }
 }

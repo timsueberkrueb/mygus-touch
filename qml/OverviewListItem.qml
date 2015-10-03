@@ -11,8 +11,9 @@ ListItem.Subtitled {
     property string notes: "Bemerkungen"
     property var entry
     property var on_clicked
+    property string stateHighlightColor: state === "entfällt" ? "#D32F2F" : "black"
 
-    text: lesson + '. Stunde ' + subject + ': ' + state
+    text: lesson + '. Stunde <b>' + subject + '</b>: <font color="' + stateHighlightColor + '">' + state + '</font>'
     subText: notes
     valueText: form
 

@@ -3,10 +3,10 @@ import Material 0.1
 
 Page {
     property Component webview
-    property Item webview_news
+    property Item webviewNews
 
     id: page_news
-    title: if (webview_news.loadProgress < 100) { "Lädt " + webview_news.loadProgress.toString() + '% ...' } else { "News" }
+    title: if (webviewNews.loadProgress < 100) { "Lädt " + webviewNews.loadProgress.toString() + '% ...' } else { "News" }
     Component.onCompleted: {
         if (Qt.platform.os === "android") {
             webview = Qt.createComponent("AndroidWebview.qml");
@@ -16,8 +16,8 @@ Page {
             webview = Qt.createComponent("UbuntuWebview.qml");
         }
 
-        webview_news = webview.createObject(page_news);
-        webview_news.url = "http://www.gymnasium-unterrieden.de";
+        webviewNews = webview.createObject(page_news);
+        webviewNews.url = "http://www.gymnasium-unterrieden.de";
     }
 }
 

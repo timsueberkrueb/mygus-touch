@@ -91,12 +91,21 @@ Makefile*
 
 *.autosave
 
-#QtCtreator Qml
+# QtCtreator Qml
 *.qmlproject.user
 *.qmlproject.user.*
 
-## MyGUS
+# MyGUS
 # Private settings
 authentication.py
 # Settings
 *.bin
+
+# Ubuntu SDK
+.ubuntu-sdk-deploy
+
+# Android
+android-build
+android-libmygus-touch.so-deployment-settings.json
+app_process
+libc.so

@@ -6,34 +6,36 @@ import Material.ListItems 0.1 as ListItem
 
 
 Item {
-    id: item_plan_students
+    id: itemPlanStudents
 
     property string version: 'unbekannt'
-    property string absent_classes: 'unbekannt'
-    property string absent_courses: 'unbekannt'
-    property string absent_teachers: 'unbekannt'
-    property string missing_rooms: 'unbekannt'
+    property string absentClasses: 'unbekannt'
+    property string absentCourses: 'unbekannt'
+    property string absentTeachers: 'unbekannt'
+    property string missingRooms: 'unbekannt'
     property string notes: 'unbekannt'
 
+    property alias dialogInformation: dialogInformation
 
-    function show_information() {
-        dialog_information.show();
+
+    function showInformation() {
+        dialogInformation.show();
     }
 
-    function set_dates(d) {
+    function setDates(d) {
         var i = combo_dates.currentIndex;
         dates = d;
         combo_dates.currentIndex = i;
     }
 
-    function current_date_changed(result) {
-        table_view_students.model = result["model"];
+    function updateCurrentDate(result) {
+        tableViewStudents.model = result["model"];
         version = result['version'];
-        absent_classes = result['absent_classes'];
-        absent_courses = result['absent_courses'];
-        absent_teachers = result['absent_teachers'];
-        missing_rooms = result['missing_rooms'];
-        notes = result['notes'];
+        absentClasses = result['absent_classes'];
+        absentCourses = result['absent_courses'];
+        absentTeachers = result['absent_teachers'];
+        missingRooms = result['missing_rooms'];
+        notes = result['student_notes'];
     }
 
     Rectangle {
@@ -44,13 +46,13 @@ Item {
             id: flickable
 
             anchors.fill: parent
-            contentWidth: table_view_students.viewport.width; contentHeight: flickable.height
+            contentWidth: tableViewStudents.viewport.width; contentHeight: flickable.height
 
             Item {
                 x: 0
 
                 TableView {                    
-                    id: table_view_students
+                    id: tableViewStudents
 
                     //anchors.top: topbar.bottom
 
@@ -67,7 +69,7 @@ Item {
                         role: "className"
                         movable: false
                         resizable: true
-                        width: table_view_students.viewport.width * 1/14
+                        width: tableViewStudents.viewport.width * 1/14
                     }
 
                     TableViewColumn {
@@ -76,7 +78,7 @@ Item {
                         role: "lesson"
                         movable: false
                         resizable: true
-                        width: table_view_students.viewport.width * 1/14
+                        width: tableViewStudents.viewport.width * 1/14
                     }
 
                     TableViewColumn {
@@ -85,7 +87,7 @@ Item {
                         role: "originalTeacher"
                         movable: false
                         resizable: true
-                        width: table_view_students.viewport.width * 3/14
+                        width: tableViewStudents.viewport.width * 3/14
                     }
 
                     TableViewColumn {
@@ -94,7 +96,7 @@ Item {
                         role: "originalSubject"
                         movable: false
                         resizable: true
-                        width: table_view_students.viewport.width * 1/14
+                        width: tableViewStudents.viewport.width * 1/14
                     }
 
 
@@ -104,7 +106,7 @@ Item {
                         role: "substitutionTeacher"
                         movable: false
                         resizable: true
-                        width: table_view_students.viewport.width * 3/14
+                        width: tableViewStudents.viewport.width * 3/14
                     }
 
                     TableViewColumn {
@@ -113,7 +115,7 @@ Item {
                         role: "substitutionSubject"
                         movable: false
                         resizable: true
-                        width: table_view_students.viewport.width * 1/14
+                        width: tableViewStudents.viewport.width * 1/14
                     }
 
                     TableViewColumn {
@@ -122,7 +124,7 @@ Item {
                         role: "substitutionRoom"
                         movable: false
                         resizable: true
-                        width: table_view_students.viewport.width * 1/14
+                        width: tableViewStudents.viewport.width * 1/14
                     }
 
                     TableViewColumn {
@@ -131,7 +133,7 @@ Item {
                         role: "comments"
                         movable: false
                         resizable: true
-                        width: table_view_students.viewport.width * 3/14
+                        width: tableViewStudents.viewport.width * 3/14
                     }
 
                 }
@@ -143,10 +145,10 @@ Item {
     }
 
     Dialog {
-        id: dialog_information
+        id: dialogInformation
         title: "Information"
         hasActions: false
-        width: item_plan_students.width - Units.dp(30)
+        width: itemPlanStudents.width - Units.dp(30)
 
         GridLayout {
             columns: 2
@@ -170,7 +172,7 @@ Item {
             }
 
             Label {
-                text: absent_classes
+                text: absentClasses
                 font.pixelSize: Units.dp(16);
             }
 
@@ -180,7 +182,7 @@ Item {
             }
 
             Label {
-                text: absent_courses
+                text: absentCourses
                 font.pixelSize: Units.dp(16);
             }
 
@@ -190,7 +192,7 @@ Item {
             }
 
             Label {
-                text: absent_teachers
+                text: absentTeachers
                 font.pixelSize: Units.dp(16);
             }
 
@@ -200,7 +202,7 @@ Item {
             }
 
             Label {
-                text: missing_rooms
+                text: missingRooms
                 font.pixelSize: Units.dp(16);
             }
 
@@ -218,7 +220,7 @@ Item {
 
         Button {
             text: "Okay"
-            onClicked: dialog_information.close()
+            onClicked: dialogInformation.close()
         }
 
     }

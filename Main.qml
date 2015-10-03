@@ -3,42 +3,47 @@ import QtQuick.Controls 1.2 as Controls
 import QtQuick.Dialogs 1.1
 import QtQuick.Window 2.0
 import Material 0.1
+import Material.ListItems 0.1 as ListItem
 import "qml"
 import io.thp.pyotherside 1.4
 
 
 
 ApplicationWindow {
-    id: main_window
+    id: mainWindow
     visible: true
 
     width: if (Device.type in [Device.phone, Device.phablet, Device.tablet]) {Screen.desktopAvailableWidth} else {Units.dp(800)}
     height: if (Device.type in [Device.phone, Device.phablet, Device.tablet]) {Screen.desktopAvailableHeight} else {Units.dp(600)}
 
-    property int login_mode: 0
-    property string login_state: "loading"
-    property var login_text: {"loading": "Sie werden angemeldet, bitte warten ...",
+    property int loginMode: 0
+    property string loginState: "loading"
+    property var loginText: {"loading": "Sie werden angemeldet, bitte warten ...",
                               "logged_out": "Sie sind abgemeldet",
                               "logged_in": "Sie sind angemeldet"};
-    property var login_color: {"loading": "#DF7401",
+    property var loginColor: {"loading": "#DF7401",
                                "logged_out": "#FF3300",
                                "logged_in": "#009933"};
 
-    property var table_model_studends: []
-    property var table_model_teachers: []
+    property var tableModelStudends: []
+    property var tableModelTeachers: []
 
-    property var last_primary_color
-    property var last_accent_color
-    property var last_background_color
+    property var lastPrimaryColor
+    property var lastAccentColor
+    property var lastBackgroundColor
 
     property var dates: []
-    property int current_date: 0
-    property string current_weekday: ""
+    property int currentDate: 0
+    property string currentWeekday: ""
 
-    property var welcome_messages
-    property int current_welcome_message: 0
+    property var welcomeMessages
+    property int currentWelcomeMessage: 0
 
-    property var py: false
+    property bool mobileMode: Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2)) < Units.dp(1000) || width < Units.dp(640)
+
+    property bool dialogShowing: ((dialogAbout.visible || dialogDesign.visible || dialogLogin.visible || dialogOptions.visible || dialogWelcomeMessage.visible) ||
+                                (vpLoader.item !== null ? vpLoader.item.dialogInformation.visible : false) ||
+                                (overviewLoader.item !== null ? overviewLoader.item.dialogDetails.visible : false))
 
     theme {
         primaryColor: "#FF4719"
@@ -48,14 +53,15 @@ ApplicationWindow {
 
     function load() {
         py.call("backend.load", [], function callback(result){
-            input_username.text = result["username"];
-            input_password.text = result["password"];
-            login_mode = result["login_mode"];
+            inputUsername.text = result["username"];
+            inputPassword.text = result["password"];
+            loginMode = result["login_mode"];
+            inputFullName.text = result["full_name"];
             login(result["dates"]);
         })
     }
 
-    function load_theme (){
+    function load_theme () {
         py.call("backend.load_theme", [], function callback(result){
             if (!result["error"]){
                 theme.primaryColor = result['primary_color'];
@@ -63,69 +69,71 @@ ApplicationWindow {
                 theme.backgroundColor = result['background_color'];
             }
 
-            last_primary_color = "" + theme.primaryColor;
-            last_accent_color = "" + theme.accentColor;
-            last_background_color = "" + theme.backgroundColor;
+            lastPrimaryColor = "" + theme.primaryColor;
+            lastAccentColor = "" + theme.accentColor;
+            lastBackgroundColor = "" + theme.backgroundColor;
         })
     }
 
     function login(dates) {
             snackbar.open("Sie werden angemeldet, bitte warten ...");
-            main_page.title = 'Lädt ...';
-            loading_indicator.visible = true;
+            mainPage.title = 'Lädt ...';
+            loadingIndicator.visible = true;
 
-            login_state = 'loading';
-            py.call("backend.login", [input_username.text, input_password.text, login_mode], function callback(result) {
+            loginState = 'loading';
+            py.call("backend.login", [inputUsername.text, inputPassword.text, loginMode, inputFullName.text], function callback(result) {
                 if (result) {
-                    if (login_mode === 0) {
-                        vp_loader.source = Qt.resolvedUrl('qml/VpStudents.qml');
+                    if (loginMode === 0) {
+                        overviewLoader.source = Qt.resolvedUrl('qml/OverviewStudents.qml')
+                        vpLoader.source = Qt.resolvedUrl('qml/VpStudents.qml');
                     }
                     else {
-                        vp_loader.source = Qt.resolvedUrl('qml/VpTeachers.qml');
+                        overviewLoader.source = Qt.resolvedUrl('qml/OverviewTeachers.qml')
+                        vpLoader.source = Qt.resolvedUrl('qml/VpTeachers.qml');
                     }
-                    set_dates(dates);
-                    set_current_date(0);
+                    setDates(dates);
+                    setCurrentDate(0);
                 }
-                main_page.title = 'MyGUS';
+                mainPage.title = 'MyGUS';
 
                 if (result === "NETWORK_ERROR") {
-                    login_state = 'logged_out';
-                    loading_indicator.visible = false;
+                    loginState = 'logged_out';
+                    loadingIndicator.visible = false;
                     snackbar.open('Netzwerkfehler: Überprüfen Sie Ihre Verbindung');
                 }
                 else if (result) {
                     snackbar.open('Willkommen!');
-                    login_state = 'logged_in';
+                    loginState = 'logged_in';
                     refresh();
                 }
                 else {
-                    login_state = 'logged_out';
+                    loginState = 'logged_out';
                     snackbar.open('Falsche Anmeldedaten, Sie sind abgemeldet!');
-                    loading_indicator.visible = false;
-                    dialog_login.show();
+                    loadingIndicator.visible = false;
+                    dialogLogin.show();
                 }
             })
     }
 
     function refresh() {
-        if (login_state === 'logged_in') {
+        if (loginState === 'logged_in') {
             snackbar.open('Vertretungspläne werden aktualisiert ...');
-            main_page.title = 'Aktualisiere ...';
+            mainPage.title = 'Aktualisiere ...';
             py.call("backend.refresh", [], function callback(result) {
-                loading_indicator.visible = false;
-                main_page.title = 'MyGUS';
+                loadingIndicator.visible = false;
+                mainPage.title = 'MyGUS';
                 if (!result["error"]){
-                    var current_date_before = current_date;
-                    set_dates(result["dates"]);
-                    if (dates.length + 1 >= current_date_before) {
-                        set_current_date(current_date);
+                    var currentbeforeDate = currentDate;
+                    setDates(result["dates"]);
+                    if (dates.length + 1 >= currentbeforeDate) {
+                        setCurrentDate(currentDate);
                     }
                     else {
-                        set_current_date(0);
+                        setCurrentDate(0);
                     }
 
                     snackbar.open('Vertretungspläne aktualisiert');
-                    show_welcome_messages();
+                    showWelcomeMessages();
                 }
                 else {
                     snackbar.open('Netzwerkfehler: Überprüfen Sie Ihre Verbindung');
@@ -137,223 +145,379 @@ ApplicationWindow {
         }
     }
 
-    function show_information() {
-        //if (login_state === 'logged_in')
-        vp_loader.item.show_information();
-        //else
-        //    show_about();
+    function showInformation() {
+        if (loginState === 'logged_in')
+            vpLoader.item.showInformation();
+        else
+            showAbout();
     }
 
-    function show_about() {
-        dialog_about.show();
+    function showAbout() {
+        dialogAbout.show();
     }
 
-    function show_options() {
-        dialog_options.show();
+    function showOptions() {
+        dialogOptions.show();
     }
 
-    function set_dates(d) {
+    function setDates(d) {
         dates = d;
-        //vp_loader.item.set_dates(d);
-        //console.log(d, d[current_date], d.length);
     }
 
-    function set_current_date(d) {
-        current_date = d;
-        current_date_changed();
+    function setCurrentDate(d) {
+        currentDate = d;
+        updateCurrentDate();
     }
 
-    function current_date_changed(d){
-        if(current_date + 1 < dates.length){
-            action_date_next.enabled = true;
+    function updateCurrentDate(d){
+        if(currentDate + 1 < dates.length){
+            actionDateNext.enabled = true;
         }
         else {
-            action_date_next.enabled = false;
+            actionDateNext.enabled = false;
         }
 
-        if (current_date > 0) {
-            action_date_before.enabled = true;
+        if (currentDate > 0) {
+            actionDateBefore.enabled = true;
         }
         else {
-            action_date_before.enabled = false;
+            actionDateBefore.enabled = false;
         }
-        py.call("backend.date_changed", [dates[current_date]], function callback(result) {
-                vp_loader.item.current_date_changed(result);
-                overview_loader.item.current_date_changed(result);
-                main_page.title = result["weekday"] + ', ' + dates[current_date].slice(0, -5);
+        py.call("backend.date_changed", [dates[currentDate]], function callback(result) {
+                vpLoader.item.updateCurrentDate(result);
+                overviewLoader.item.updateCurrentDate(result);
+                mainPage.title = result["weekday"] + ', ' + dates[currentDate].slice(0, -5);
         })
     }
 
-    function date_next() {
-        current_date += 1;
-        current_date_changed();
+    function nextDate() {
+        currentDate += 1;
+        updateCurrentDate();
     }
 
-    function date_before() {
-        current_date -= 1;
-        current_date_changed();
+    function beforeDate() {
+        currentDate -= 1;
+        updateCurrentDate();
     }
 
-    function show_welcome_messages() {
+    function showWelcomeMessages() {
         py.call("backend.get_welcome_messages", [], function callback(result) {
             if (result.length > 0){
-                welcome_messages = result;
-                current_welcome_message = 0;
-                show_welcome_message(current_welcome_message);
+                welcomeMessages = result;
+                currentWelcomeMessage = 0;
+                showWelcomeMessage(currentWelcomeMessage);
             }
 
         })
 
     }
 
-    function show_welcome_message(i) {
-        if (welcome_messages.length >= i) {
-            dialog_welcome_message.msg_id = welcome_messages[i]['id'];
-            dialog_welcome_message.title = welcome_messages[i]['title'];
-            dialog_welcome_message.text = welcome_messages[i]['text'];
-            dialog_welcome_message.priority = welcome_messages[i]['priority'];
-            checkbox_show_again.checked = welcome_messages[i]['priority'] !== 'high';
-            dialog_welcome_message.show();
+    function showWelcomeMessage(i) {
+        if (welcomeMessages.length >= i) {
+            dialogWelcomeMessage.msg_id = welcomeMessages[i]['id'];
+            dialogWelcomeMessage.title = welcomeMessages[i]['title'];
+            dialogWelcomeMessage.text = welcomeMessages[i]['text'];
+            dialogWelcomeMessage.priority = welcomeMessages[i]['priority'];
+            checkboxShowAgain.checked = welcomeMessages[i]['priority'] !== 'high';
+            dialogWelcomeMessage.show();
         }
     }
 
+    // Workaround for pixel density bugs
+
     function fixDensity() {
-        var bq45 =
+        // BQ Devices
+        var bqAquarisE45 =
                 (Screen.width == 540) &&
                 (Screen.height == 960) &&
                 (Screen.pixelDensity.toFixed(2) == 3.94) &&
                 (Screen.logicalPixelDensity.toFixed(2) == 3.94)
-        if (bq45) {
+        if (bqAquarisE45) {
             Units.multiplier = 2;
+        }
+
+        var bqAquarisE5 =
+            (Screen.width == 720) &&
+            (Screen.height == 1280) &&
+            (Screen.pixelDensity.toFixed(2) == 3.94) &&
+            (Screen.logicalPixelDensity.toFixed(2) == 3.94)
+        if (bqAquarisE5) {
+            Units.multiplier = 3.03
+        }
+
+        // Meizu Devices
+        var meizuMX4 =
+            (Screen.width == 1152) &&
+            (Screen.height == 1920) &&
+            (Screen.pixelDensity.toFixed(2) == 3.94) &&
+            (Screen.logicalPixelDensity.toFixed(2) == 3.94)
+        if (meizuMX4) {
+            Units.multiplier = 4.11
+        }
+
+        // Google Nexus Devices
+        var googleNexus4 =
+            (Screen.width == 768) &&
+            (Screen.height == 1280) &&
+            (Screen.pixelDensity.toFixed(2) == 3.94) &&
+            (Screen.logicalPixelDensity.toFixed(2) == 3.94)
+        if (googleNexus4) {
+            Units.multiplier = 3.23
+        }
+
+        var googleNexus5 =
+            (Screen.width == 1080) &&
+            (Screen.height == 1920) &&
+            (Screen.pixelDensity.toFixed(2) == 3.94) &&
+            (Screen.logicalPixelDensity.toFixed(2) == 3.94)
+        if (googleNexus5) {
+            Units.multiplier = 4.11
+        }
+
+        var googleNexus7 =
+            (Screen.width == 1200) &&
+            (Screen.height == 1920) &&
+            (Screen.pixelDensity.toFixed(2) == 3.94) &&
+            (Screen.logicalPixelDensity.toFixed(2) == 3.94)
+        if (googleNexus7) {
+            Units.multiplier = 3.23
+        }
+
+    }
+
+    // Workaround for icons not showing up on Android
+    Item {
+        id: androidIconsWorkaround
+        y: - Units.dp(256)
+        Repeater {
+            model: [
+                "navigation/menu",
+                "navigation/arrow_back",
+                "navigation/refresh",
+                "action/delete",
+                "navigation/arrow_drop_down",
+                "navigation/more_vert",
+            ]
+            delegate: Icon { name: modelData }
         }
     }
 
-    initialPage: Page {
-        id: main_page
+    initialPage: TabbedPage {
+        id: mainPage
         title: "MyGUS"
 
         actions: [
 
             Action {
-                id: action_date_before
+                id: actionDateBefore
                 iconName: "image/navigate_before"
-                name: "Vorheriger Tag"
-                onTriggered: date_before();
-                enabled: if (current_date !== 0) {true} else {false}
+                onTriggered: beforeDate();
+                enabled: if (currentDate !== 0) {true} else {false}
+                tooltip: ""
             },
 
             Action {
-                id: action_date_next
+                id: actionDateNext
                 iconName: "image/navigate_next"
-                name: "Nächster Tag"
-                onTriggered: date_next();
-                //enabled: if(current_date + 1 !== dates.length){true} else {false}
-
+                onTriggered: nextDate();
+                //enabled: if(currentDate + 1 !== dates.length){true} else {false}
+                tooltip: ""
             },
-
 
             Action {
                 iconName: "navigation/refresh"
                 name: "Aktualisieren"
                 onTriggered: refresh();
+                visible: !mobileMode
             },
 
             Action {
                iconName: "maps/local_restaurant"
                name: "Essen bestellen"
                onTriggered: {
-                   pageStack.push(Qt.resolvedUrl("qml/Mensa.qml"))
+                   if (Qt.platform.os === "android")
+                        Qt.openUrlExternally('https://gus.sams-on.de/')
+                   else
+                        pageStack.push(Qt.resolvedUrl("qml/Mensa.qml"))
                }
-
+               visible: !mobileMode
             },
 
             Action {
                iconName: "av/web"
                name: "News"
                onTriggered: {
-                   pageStack.push(Qt.resolvedUrl("qml/News.qml"))
+                   if (Qt.platform.os === "android")
+                      Qt.openUrlExternally('http://www.gymnasium-unterrieden.de/')
+                   else
+                      pageStack.push(Qt.resolvedUrl("qml/News.qml"))
                }
-
+               visible: !mobileMode
             },
 
             Action {
                 iconName: "action/account_circle"
                 name: "Login"
-                onTriggered: dialog_login.show();
+                onTriggered: dialogLogin.show();
+                visible: !mobileMode
             },
 
             Action {
                 iconName: "action/settings"
                 name: "Optionen"
-                onTriggered: show_options();
+                onTriggered: showOptions();
+                visible: !mobileMode
             }
         ]
 
-        tabs: [
-            // Each tab can have text and an icon
-            {
-                text: "Übersicht",
-                icon: "action/home"
-            },
+        backAction: navDrawer.action
 
-            {
-                text: "Plan",
-                icon: "action/subject"
-            },
+        NavigationDrawer {
+            id: navDrawer
 
-        ]
+            enabled: mobileMode && !dialogShowing
 
-        TabView {
-            id: tabView
-            anchors.fill: parent
-            currentIndex: main_page.selectedTab
-            model: tabs
+            Flickable {
+                anchors.fill: parent
+
+                contentHeight: Math.max(content.implicitHeight, height)
+
+                Column {
+                    id: content
+                    anchors.fill: parent
+
+                    Row {
+                        height: Units.dp(96)
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        spacing: Units.dp(16)
+                        anchors.margins: Units.dp(16)
+
+                        Image {
+                            id: name
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: Units.dp(64)
+                            height: Units.dp(64)
+                            source: Qt.resolvedUrl("icon.png")
+                            smooth: true
+                        }
+
+                        Label {
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: "MyGUS"
+                            font.pixelSize: Units.dp(18)
+                        }
+
+                    }
+
+
+                    Repeater {
+                        model: mainPage.actions
+                        delegate: ListItem.Standard {
+
+                            visible: index > 1
+
+                            Row {
+                                anchors.fill: parent
+                                anchors.margins: Units.dp(16)
+                                spacing: Units.dp(16)
+
+                                Icon {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    name: model.iconName
+                                }
+
+                                Label {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    text: model.name
+                                    font.pixelSize: Units.dp(16)
+                                }
+
+                            }
+
+                            onClicked: {
+                                mainPage.actions[index].triggered(mainPage);
+                                navDrawer.close();
+                            }
+
+                        }
+
+                    }
+
+
+                    ListItem.Standard {
+
+                        Row {
+                            anchors.fill: parent
+                            anchors.margins: Units.dp(16)
+                            spacing: Units.dp(16)
+
+                            Icon {
+                                anchors.verticalCenter: parent.verticalCenter
+                                name: "action/info"
+                            }
+
+                            Label {
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: "Über"
+                                font.pixelSize: Units.dp(16)
+                            }
+
+                        }
+
+                        onClicked: {
+                            showAbout();
+                            navDrawer.close();
+                        }
+
+                    }
+
+                }
+
+                Label {
+                    anchors.bottom: parent.bottom
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.margins: Units.dp(16)
+
+                    visible: navDrawer.height > Units.dp(420)
+
+                    text: "MyGUS - © 2015 by Tim Süberkrüb"
+
+                }
+            }
         }
 
-        VisualItemModel {
-            id: tabs
+        Tab {
+            id: tabOverview
+            title: "Übersicht"
+            iconName: "action/home"
+        }
 
-            // Tab "Überblick"
-            Rectangle {
-                width: tabView.width
-                height: tabView.height
-                Flickable {
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                        top: parent.top
-                        bottom: parent.bottom
-                    }
-                    clip: true
-                    contentHeight: Math.max(overview_loader.implicitHeight, height)
-                    Loader {
-                        id: overview_loader
-                        anchors.fill: parent
-                        // selectedComponent will always be valid, as it defaults to the first component
-                        source: Qt.resolvedUrl("qml/OverviewStudents.qml")
-                    }
-                }
+        Tab {
+            id: tabPlan
+            title: "Plan"
+            iconName: "action/subject"
+        }
+
+        Item {
+            visible: mainPage.selectedTab === 0
+            anchors.fill: parent
+
+            Loader {
+                id: overviewLoader
+                anchors.fill: parent
             }
 
-            // Tab "Vertretungsplan"
-            Rectangle {
-                width: tabView.width
-                height: tabView.height
-                Flickable {
-                    id: flickable
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                        top: parent.top
-                        bottom: parent.bottom
-                    }
-                    clip: true
-                    contentHeight: Math.max(vp_loader.implicitHeight + Units.dp(45), height)
-                    Loader {
-                        id: vp_loader
-                        anchors.fill: parent
-                    }
-                }
+        }
+
+        Item {
+            visible: mainPage.selectedTab === 1
+            anchors.fill: parent
+
+            Loader {
+                id: vpLoader
+                anchors.fill: parent
             }
 
         }
@@ -361,9 +525,10 @@ ApplicationWindow {
     }
 
     Dialog {
-        id: dialog_login
+        id: dialogLogin
         title: "Login"
         positiveButtonText: "Login"
+        negativeButtonText: "Abbrechen"
 
         Column {
             anchors.rightMargin: 8
@@ -376,30 +541,49 @@ ApplicationWindow {
             }
 
             Label {
-                text: login_text[login_state]
-                color: login_color[login_state]
+                text: loginText[loginState]
+                color: loginColor[loginState]
             }
 
             TextField {
-                id: input_username
+                id: inputUsername
+                height: Units.dp(36)
                 width: parent.width
-                placeholderText: "username"
+                placeholderText: comboLoginMode.selectedIndex === 0 ? "Klasse" : "Benutzername"
+                onAccepted: {
+                    inputFullName.forceActiveFocus();
+                }
             }
 
             TextField {
-                id: input_password
+                id: inputFullName
                 width: parent.width
-                placeholderText: "password"
+                height: Units.dp(36)
+                placeholderText: comboLoginMode.selectedIndex === 0 ? "Dein Name (optional)" : "Name z.B. Herr Pfeiffer"
+                onAccepted: {
+                    inputPassword.forceActiveFocus();
+                }
+            }
+
+            TextField {
+                id: inputPassword
+                width: parent.width
+                height: Units.dp(36)
+                placeholderText: "Password"
                 echoMode: TextInput.Password
+                onAccepted: {
+                    dialogLogin.close();
+                    login(dates);
+                }
 
             }
 
             MenuField {
-                id: combo_login_mode
+                id: comboLoginMode
                 model: ['Ich bin ein Schüler', 'Ich bin ein Lehrer']
-                selectedIndex: login_mode
+                selectedIndex: loginMode
                 onSelectedIndexChanged: {
-                    login_mode = this.selectedIndex;
+                    loginMode = this.selectedIndex;
                 }
             }
 
@@ -410,9 +594,9 @@ ApplicationWindow {
         }
 
         onVisibleChanged: {
-            if (!dialog_login.visible){
-                if (login_state === 'logged_out' && input_username.text === '' && input_password.text == ''){
-                    dialog_login.show();
+            if (!dialogLogin.visible){
+                if (loginState === 'logged_out' && inputUsername.text === '' && inputPassword.text == ''){
+                    dialogLogin.show();
                     snackbar.open('Geben Sie Ihre Anmeldedaten ein!');
                 }
             }
@@ -422,7 +606,7 @@ ApplicationWindow {
 
 
     Dialog {
-        id: dialog_about
+        id: dialogAbout
 
         title: "Über MyGUS"
         hasActions: false
@@ -439,21 +623,21 @@ ApplicationWindow {
 
             Label {
                 wrapMode: Text.WordWrap
-                width: main_window.width - Units.dp(100)
+                width: mainWindow.width - Units.dp(100)
                 font.pixelSize: Units.dp(16);
-                text: "MyGUS ist ein Schulplaner für das Gymnasium Unterrieden Sindelfingen\n© Copyright Tim Süberkrüb, 2014-2015\nDiese App benutzt Python, PyOtherSide, QML (Qt), QML-Material und QtQuick."
+                text: "MyGUS ist ein Schulplaner für das Gymnasium Unterrieden Sindelfingen.\nVielen Dank an Julian Schließus und Dominik Stiller ohne die MyGUS so nicht existieren würde :)\nDiese App benutzt Python, PyOtherSide, QML (Qt), QML-Material und QtQuick.\n© Copyright Tim Süberkrüb, 2014-2015"
             }
 
             Button {
                 text: "Okay"
-                onClicked: dialog_about.close();
+                onClicked: dialogAbout.close();
             }
 
         }
     }
 
     Dialog {
-        id: dialog_welcome_message
+        id: dialogWelcomeMessage
 
         title: "Willkommen"
         property string text: "Keine Daten verfügbar :("
@@ -474,32 +658,32 @@ ApplicationWindow {
 
             Label {
                 wrapMode: Text.WordWrap
-                width: main_window.width - Units.dp(100)
-                text: dialog_welcome_message.text
+                width: mainWindow.width - Units.dp(100)
+                text: dialogWelcomeMessage.text
                 font.pixelSize: Units.dp(16);
             }
 
             CheckBox {
-                id: checkbox_show_again
+                id: checkboxShowAgain
                 text: "Nicht mehr anzeigen"
-                checked: dialog_welcome_message.priority !== "high"
+                checked: dialogWelcomeMessage.priority !== "high"
             }
 
             Button {
                 text: "Okay"
-                onClicked: dialog_welcome_message.close();
+                onClicked: dialogWelcomeMessage.close();
             }
 
         }
 
         onVisibleChanged: {
-            if (!dialog_welcome_message.visible && dialog_welcome_message.msg_id) {
-                if (checkbox_show_again.checked) {
-                    py.call('backend.set_welcome_message_read', [dialog_welcome_message.msg_id]);
+            if (!dialogWelcomeMessage.visible && dialogWelcomeMessage.msg_id) {
+                if (checkboxShowAgain.checked) {
+                    py.call('backend.set_welcome_message_read', [dialogWelcomeMessage.msg_id]);
                 }
-                if(current_welcome_message +1 !== welcome_messages.length) {
-                    current_welcome_message += 1;
-                    show_welcome_message(current_welcome_message);
+                if(currentWelcomeMessage +1 !== welcomeMessages.length) {
+                    currentWelcomeMessage += 1;
+                    showWelcomeMessage(currentWelcomeMessage);
                 }
 
             }
@@ -507,7 +691,7 @@ ApplicationWindow {
     }
 
     Dialog {
-        id: dialog_options
+        id: dialogOptions
         hasActions: false
 
         title: "Optionen"
@@ -525,23 +709,23 @@ ApplicationWindow {
             Button {
                 text: "Design ändern"
                 onClicked: {
-                    dialog_options.close();
-                    dialog_design.show();
+                    dialogOptions.close();
+                    dialogDesign.show();
                 }
             }
 
             Button {
                 text: "Über MyGUS"
                 onClicked: {
-                    dialog_options.close();
-                    show_about();
+                    dialogOptions.close();
+                    showAbout();
                 }
             }
 
             Button {
                 text: "Abbrechen"
                 onClicked: {
-                    dialog_options.close();
+                    dialogOptions.close();
                 }
             }
 
@@ -549,7 +733,7 @@ ApplicationWindow {
     }
 
     Dialog {
-        id: dialog_design
+        id: dialogDesign
         title: "Design"
 
         positiveButtonText: "Fertig"
@@ -557,7 +741,7 @@ ApplicationWindow {
 
         MenuField {
             id: selection
-            model: ["Primärfarbe", "Akzentfarbe", "Hintergrundfarbe"]
+            model: ["Primärfarbe", "Akzentfarbe"]
             width: Units.dp(160)
         }
 
@@ -593,9 +777,6 @@ ApplicationWindow {
                                 case 1:
                                     theme.accentColor = parent.color
                                     break;
-                                case 2:
-                                    theme.backgroundColor = parent.color
-                                    break;
                             }
                         }
                     }
@@ -604,31 +785,42 @@ ApplicationWindow {
         }
 
         onRejected: {
-            theme.primaryColor = last_primary_color;
-            theme.accentColor = last_accent_color;
-            theme.backgroundColor = last_background_color;
+            theme.primaryColor = lastPrimaryColor;
+            theme.accentColor = lastAccentColor;
+            theme.backgroundColor = lastBackgroundColor;
         }
 
         onAccepted: {
-            last_primary_color = "" + theme.primaryColor;
-            last_accent_color = "" + theme.accentColor;
-            last_background_color = "" + theme.backgroundColor;
-            py.call("backend.save_theme", [last_primary_color, last_accent_color, last_background_color], function callback(result) {})
+            lastPrimaryColor = "" + theme.primaryColor;
+            lastAccentColor = "" + theme.accentColor;
+            lastBackgroundColor = "" + theme.backgroundColor;
+            py.call("backend.save_theme", [lastPrimaryColor, lastAccentColor, lastBackgroundColor], function callback(result) {})
         }
 
     }
 
     ActionButton {
-            anchors {
-                right: parent.right
-                bottom: parent.bottom
-                margins: Units.dp(32)
-            }
+        property bool showing: !navDrawer.showing && pageStack.currentItem === mainPage && !dialogShowing
 
-            iconName: "action/info"
-            onClicked: {
-                show_information();
+        anchors {
+            right: parent.right
+            margins: Units.dp(32)
+        }
+        y: showing ? parent.height - height - anchors.margins : parent.height
+
+        Behavior on y {
+            NumberAnimation {
+                property: "y"
+                duration: 200
+                easing.type: Easing.InOutQuad
             }
+        }
+
+
+        iconName: "action/info"
+        onClicked: {
+            showInformation();
+        }
     }
 
     Snackbar {
@@ -636,7 +828,7 @@ ApplicationWindow {
     }
 
     LoadingIndicator {
-        id: loading_indicator
+        id: loadingIndicator
         anchors.centerIn: parent
     }
 
@@ -646,6 +838,7 @@ ApplicationWindow {
             snackbar.open("Willkommen zu MyGUS");
             // Add the directory of this .qml file to the search path
             addImportPath(Qt.resolvedUrl("."));
+            //androidIconsWorkaround.visible = false;
             importModule_sync('backend');
             load_theme();
             load();

@@ -9,6 +9,8 @@
     0.1.1       Added python 2.7 support
     0.1.2       Authentication via App Id and Token added
     0.1.3       Authentication key moved to private file
+    0.1.4       Different notes for students and teachers,
+                Get relevant entries for teachers
 """
 __author__ = 'Tim Süberkrüb'
 __version__ = '0.1.3'
@@ -136,7 +138,8 @@ class Plan:
 
         self.version = None
         self.last_updated = None
-        self.notes = None
+        self.student_notes = None
+        self.teacher_notes = None
         self.absent_classes = None
         self.absent_courses = None
         self.absent_teachers = None
@@ -152,7 +155,8 @@ class Plan:
         meta = data['metadata']
         self.version = meta['version']
         self.last_updated = meta['lastUpdated']
-        self.notes = meta['notes'].replace("\t", "\n").replace("LFLF", '\n')
+        self.student_notes = meta['studentNotes'].replace("\t", "\n").replace("LFLF", '\n')
+        self.teacher_notes = meta['teacherNotes'].replace("\t", "\n").replace("LFLF", '\n')
         self.absent_classes = meta['absentClasses']
         self.absent_courses = meta['absentCourses']
         self.absent_teachers = meta['absentTeachers']
@@ -170,6 +174,14 @@ class Plan:
                     or entry['className'] == f[0]:
                 e += [entry]
         return e
+
+    def get_relevant_entries_for_teacher(self, name):
+        e = []
+        for entry in self.entries:
+            if entry['originalTeacher'].lower() == name.lower() or entry['substitutionTeacher'].lower() == name.lower():
+                e += [entry]
+        return e
+
 
     def get_entries_by_lesson(self, form):
         entries = self.get_relevant_entries_by_form(form)

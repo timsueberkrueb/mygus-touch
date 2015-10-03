@@ -8,6 +8,7 @@ ListItem.Subtitled {
     subText: 'Keine Änderungen heute für deine Klasse'
     action: Icon {
         anchors.centerIn: parent
+        color: "#4CAF50"
         name: "action/check_circle"
         size: Units.dp(32)
     }

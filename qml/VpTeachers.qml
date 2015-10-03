@@ -6,34 +6,35 @@ import Material.ListItems 0.1 as ListItem
 
 
 Item {
-    id: item_plan_teachers
+    id: itemPlanTeachers
 
     property string version: 'unbekannt'
-    property string absent_classes: 'unbekannt'
-    property string absent_courses: 'unbekannt'
-    property string absent_teachers: 'unbekannt'
-    property string missing_rooms: 'unbekannt'
+    property string absentClasses: 'unbekannt'
+    property string absentCourses: 'unbekannt'
+    property string absentTeachers: 'unbekannt'
+    property string missingRooms: 'unbekannt'
     property string notes: 'unbekannt'
 
+    property alias dialogInformation: dialogInformation
 
-    function show_information() {
-        dialog_information.show();
+    function showInformation() {
+        dialogInformation.show();
     }
 
-    function set_dates(d) {
+    function setDates(d) {
         var i = combo_dates.currentIndex;
         dates = d;
         combo_dates.currentIndex = i;
     }
 
-    function current_date_changed(result) {
+    function updateCurrentDate(result) {
         table_view_teachers.model = result["model_teachers"];
         version = result['version'];
-        absent_classes = result['absent_classes'];
-        absent_courses = result['absent_courses'];
-        absent_teachers = result['absent_teachers'];
-        missing_rooms = result['missing_rooms'];
-        notes = result['notes'];
+        absentClasses = result['absent_classes'];
+        absentCourses = result['absent_courses'];
+        absentTeachers = result['absent_teachers'];
+        missingRooms = result['missing_rooms'];
+        notes = result['teacher_notes'];
     }
 
     Rectangle {
@@ -135,10 +136,10 @@ Item {
     }
 
     Dialog {
-        id: dialog_information
+        id: dialogInformation
         title: "Information"
         hasActions: false
-        width: item_plan_teachers.width - Units.dp(30)
+        width: itemPlanTeachers.width - Units.dp(30)
 
         GridLayout {
             columns: 2
@@ -159,7 +160,7 @@ Item {
             }
 
             Label {
-                text: absent_classes
+                text: absentClasses
             }
 
             Label {
@@ -167,7 +168,7 @@ Item {
             }
 
             Label {
-                text: absent_courses
+                text: absentCourses
             }
 
             Label {
@@ -175,7 +176,7 @@ Item {
             }
 
             Label {
-                text: absent_teachers
+                text: absentTeachers
             }
 
             Label {
@@ -183,7 +184,7 @@ Item {
             }
 
             Label {
-                text: missing_rooms
+                text: missingRooms
             }
 
             Label {
@@ -198,7 +199,7 @@ Item {
 
         Button {
             text: "Okay"
-            onClicked: dialog_information.close()
+            onClicked: dialogInformation.close()
         }
 
     }

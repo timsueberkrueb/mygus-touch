@@ -12,9 +12,10 @@
         <file>qml/NoChangesOverviewListItem.qml</file>
         <file>qml/OverviewListItem.qml</file>
         <file>qml/OverviewStudents.qml</file>
-        <file>qml/PythonCore.qml</file>
         <file>qml/UbuntuWebview.qml</file>
         <file>qml/VpStudents.qml</file>
         <file>qml/VpTeachers.qml</file>
+        <file>backend/authentication.py</file>
+        <file>qml/OverviewTeachers.qml</file>
     </qresource>
 </RCC>
