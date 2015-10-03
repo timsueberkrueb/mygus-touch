@@ -109,3 +109,6 @@ android-build
 android-libmygus-touch.so-deployment-settings.json
 app_process
 libc.so
+
+# PyCharm
+.idea
