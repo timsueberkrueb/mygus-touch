@@ -377,6 +377,8 @@ ApplicationWindow {
 
             enabled: mobileMode && !dialogShowing
 
+            Component.onCompleted: action.name = ""
+
             Flickable {
                 anchors.fill: parent
 
