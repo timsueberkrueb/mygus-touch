@@ -103,6 +103,7 @@ authentication.py
 
 # Ubuntu SDK
 .ubuntu-sdk-deploy
+*.click
 
 # Android
 android-build
