@@ -33,7 +33,7 @@ def check_servers():
     global server_address_student_login, server_address_teacher_login
     try:
         # Standard server available
-        urllib.urlopen('http://' + server_address_student_login)
+        json.loads(urllib.urlopen('http://' + server_address_student_login))
     except Exception as e:
         # Using fallback server
         print("Standard server unreachable, using fallback server")
