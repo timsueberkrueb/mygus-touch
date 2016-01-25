@@ -1,8 +1,8 @@
-import QtQuick 2.2
-import QtQuick.Controls 1.2 as Controls
+import QtQuick 2.4
+import QtQuick.Controls 1.3 as Controls
 import QtQuick.Dialogs 1.1
 import QtQuick.Window 2.0
-import Material 0.1
+import Material 0.2
 import Material.ListItems 0.1 as ListItem
 import "qml"
 import io.thp.pyotherside 1.4
@@ -13,8 +13,8 @@ ApplicationWindow {
     id: mainWindow
     visible: true
 
-    width: if (Device.type in [Device.phone, Device.phablet, Device.tablet]) {Screen.desktopAvailableWidth} else {Units.dp(800)}
-    height: if (Device.type in [Device.phone, Device.phablet, Device.tablet]) {Screen.desktopAvailableHeight} else {Units.dp(600)}
+    width: Device.isMobile ? Screen.desktopAvailableWidth : Units.dp(800)
+    height: Device.isMobile ? Screen.desktopAvailableHeight : Units.dp(600)
 
     property int loginMode: 0
     property string loginState: "loading"
@@ -484,7 +484,7 @@ ApplicationWindow {
 
                     visible: navDrawer.height > Units.dp(420)
 
-                    text: "MyGUS - © 2015 by Tim Süberkrüb"
+                    text: "MyGUS - © 2016 by Tim Süberkrüb"
 
                 }
             }
@@ -627,7 +627,7 @@ ApplicationWindow {
                 wrapMode: Text.WordWrap
                 width: mainWindow.width - Units.dp(100)
                 font.pixelSize: Units.dp(16);
-                text: "MyGUS ist ein Schulplaner für das Gymnasium Unterrieden Sindelfingen.\nVielen Dank an Julian Schließus und Dominik Stiller ohne die MyGUS so nicht existieren würde :)\nDiese App benutzt Python, PyOtherSide, QML (Qt), QML-Material und QtQuick.\n© Copyright Tim Süberkrüb, 2014-2015"
+                text: "MyGUS ist ein Schulplaner für das Gymnasium Unterrieden Sindelfingen.\nVielen Dank an Julian Schließus und Dominik Stiller ohne die MyGUS so nicht existieren würde :)\nDiese App benutzt Python, PyOtherSide, QML (Qt), QML-Material und QtQuick.\n© Copyright Tim Süberkrüb, 2014-2016"
             }
 
             Button {
