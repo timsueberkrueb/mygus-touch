@@ -98,6 +98,7 @@ Makefile*
 # MyGUS
 # Private settings
 authentication.py
+dirty_auth.py
 # Settings
 *.bin
 

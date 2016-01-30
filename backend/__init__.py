@@ -6,7 +6,7 @@ __version__ = '0.2.7'
 
 import pyotherside
 from . import vp_api
-from . import mygus_api
+from . import dirty_auth
 import pickle
 import urllib.error
 import datetime
@@ -75,7 +75,7 @@ def load():
     result['dates'] = sorted(list(plans.keys()))
 
     # Check servers
-    mygus_api.check_servers()
+    #mygus_api.check_servers()
 
     return result
 
@@ -111,7 +111,7 @@ def login(username, password, login_mode, name=None):
     user_full_name = name
     try:
         user_name = username
-        result = mygus_api.authenticate(username, password, login_mode, user_name, app_id, app_version, app_platform)
+        result = dirty_auth.authenticate(username, password, login_mode, user_name, app_id, app_version, app_platform)
         with open(app_path + 'login.bin', 'wb') as file:
             pickle.dump(username, file)
             pickle.dump(password, file)
@@ -191,7 +191,7 @@ def get_welcome_messages():
     global user_name
     global app_version
     global app_platform
-    return mygus_api.get_welcome_messages(user_name, read_welcome_messages, app_version, app_platform)
+    return [] #mygus_api.get_welcome_messages(user_name, read_welcome_messages, app_version, app_platform)
 
 
 def set_welcome_message_read(id):

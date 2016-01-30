@@ -11,7 +11,7 @@ import io.thp.pyotherside 1.4
 
 ApplicationWindow {
     id: mainWindow
-    visible: true
+    visible: false
 
     width: Device.isMobile ? Screen.desktopAvailableWidth : Units.dp(800)
     height: Device.isMobile ? Screen.desktopAvailableHeight : Units.dp(600)
@@ -851,6 +851,7 @@ ApplicationWindow {
 
     Component.onCompleted: {
         fixDensity();
+        mainWindow.visible = true;
     }
 
 }
