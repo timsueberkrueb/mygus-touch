@@ -103,7 +103,7 @@ def prepare_uris():
             sources_list = open(os.path.join(new_etc_apt, 'sources.list'), "w")
             for source in sources[arch]:
                 sources_list.write(
-                    "deb [arch={arch}] {uri} utopic {repositories}\n"
+                    "deb [arch={arch}] {uri} wily {repositories}\n"
                     .format(arch=arch, uri=source.uri,
                             repositories=source.repositories))
             sources_list.close()
