@@ -9,3 +9,4 @@ release
 resources
 *.bin
 android_webview.qml
+.idea
