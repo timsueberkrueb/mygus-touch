@@ -28,7 +28,7 @@ app_version = __version__
 user_name = 'unknown'
 read_welcome_messages = []
 user_full_name = ''
-is_teacher = Falses
+is_teacher = False
 
 
 def load():

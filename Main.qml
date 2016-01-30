@@ -332,7 +332,7 @@ ApplicationWindow {
             },
 
             Action {
-               iconName: "maps/local_restaurant"
+               iconName: "maps/restaurant_menu"
                name: "Essen bestellen"
                onTriggered: {
                    if (Qt.platform.os === "android")
@@ -840,6 +840,7 @@ ApplicationWindow {
             snackbar.open("Willkommen zu MyGUS");
             // Add the directory of this .qml file to the search path
             addImportPath(Qt.resolvedUrl("."));
+            addImportPath(Qt.resolvedUrl("./lib/py"));
             //androidIconsWorkaround.visible = false;
             importModule_sync('backend');
             load_theme();
